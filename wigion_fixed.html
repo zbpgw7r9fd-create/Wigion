@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light">
+    <title>위기ON – 국제사회 위기 상황 통합 지원 플랫폼</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        :root { color-scheme: light; }
+        body {
+            background-color: #f4f6f9;
+            color: #333333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #app {
+            width: 100%;
+            max-width: 480px;
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        @media (min-width: 481px) {
+            #app { min-height: 850px; border-radius: 20px; overflow: hidden; margin: 20px 0; }
+        }
+        body.font-small { font-size: 13px; }
+        body.font-normal { font-size: 15px; }
+        body.font-large { font-size: 18px; }
+
+        .emergency-bar {
+            background-color: #d9534f;
+            color: white;
+            padding: 10px 15px;
+            padding-top: calc(10px + env(safe-area-inset-top, 0px));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        .emergency-bar a {
+            background-color: white;
+            color: #d9534f;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.85em;
+        }
+        header {
+            background-color: #ffffff;
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 { font-size: 1.2em; color: #1a365d; }
+
+        .screen {
+            display: none;
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            flex-direction: column;
+            padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+        }
+        .screen.active { display: flex; }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #2b6cb0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .btn:active { opacity: 0.9; }
+        .btn-secondary { background-color: #4a5568; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            background: #ffffff;
+            color: #333333;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+
+        .welcome-container { text-align: center; margin-top: 30px; }
+        .welcome-container h2 { font-size: 1.8em; color: #1a365d; margin-bottom: 10px; }
+        .welcome-container p { color: #718096; margin-bottom: 25px; font-size: 0.95em; line-height: 1.5; }
+
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .lang-switch { display: flex; gap: 6px; }
+        .lang-btn {
+            padding: 5px 10px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            color: #333333;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .lang-btn.active { background: #2b6cb0; color: white; border-color: #2b6cb0; }
+        .font-switch { display: flex; gap: 4px; }
+        .font-btn {
+            padding: 4px 8px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            color: #333333;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .font-btn.active { background: #4a5568; color: white; }
+
+        .progress-container {
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            height: 8px;
+            width: 100%;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .progress-bar { background-color: #48bb78; height: 100%; width: 0%; transition: width 0.3s ease; }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .checklist-item input {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .tabs { display: flex; border-bottom: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 5px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-weight: bold;
+            color: #718096;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .tab-btn.active { color: #2b6cb0; border-bottom: 3px solid #2b6cb0; }
+        .section-pane { display: none; }
+        .section-pane.active { display: flex; flex-direction: column; }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .card h3 { font-size: 1.05em; margin-bottom: 6px; color: #2d3748; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .status-1 { background: #feebc8; color: #c05621; }
+        .status-2 { background: #ebf8ff; color: #2b6cb0; }
+        .status-3 { background: #e9d8fd; color: #6b46c1; }
+        .status-4 { background: #c6f6d5; color: #276749; }
+        .status-5 { background: #edf2f7; color: #4a5568; }
+
+        .trust-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            background: #e2e8f0;
+            color: #2d3748;
+            margin-left: 5px;
+        }
+        .trust-official { background: #c6f6d5; color: #22543d; }
+        .trust-verified { background: #bee3f8; color: #2b6cb0; }
+        .trust-unconfirmed { background: #feebc8; color: #9c4221; }
+
+        .map-container { background: #edf2f7; border-radius: 8px; padding: 10px; margin-bottom: 15px; text-align: center; }
+        .graph-bar-wrapper { margin-bottom: 8px; }
+        .graph-bar-container { background: #e2e8f0; border-radius: 4px; height: 14px; width: 100%; overflow: hidden; display: flex; }
+        .graph-bar-fill { background: #3182ce; height: 100%; }
+
+        footer.disclaimer {
+            background-color: #edf2f7;
+            color: #718096;
+            font-size: 0.75em;
+            padding: 10px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            margin-top: auto;
+        }
+
+        /* 지원기구 탭을 화면 하단에 고정 (하단 탭 3개) */
+        #screen-org .tabs {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 480px; background: #ffffff; margin: 0;
+            border-bottom: none; border-top: 1px solid #e2e8f0; z-index: 900;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.06);
+        }
+        #screen-org .tab-btn { padding: 14px 5px; }
+        #screen-org .tab-btn.active { border-bottom: none; border-top: 3px solid #2b6cb0; }
+        @media (min-width: 481px) { #screen-org .tabs { bottom: 20px; } }
+
+        /* 요청 상세 / 지원 연결 */
+        .detail-box { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 0.85em; color: #4a5568; }
+        .cand-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px dashed #cbd5e0; margin-top: 6px; }
+        /* 앱 안에서 직접 그리는 알림/확인 창 (브라우저 기본 팝업이 막힌 환경에서도 동작) */
+        #modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        #modal-backdrop.show { display: flex; }
+        #modal-box { background: #ffffff; color: #333333; border-radius: 12px; padding: 20px; width: 100%; max-width: 340px; }
+        #modal-msg { white-space: pre-line; line-height: 1.5; margin-bottom: 16px; }
+        #modal-btns { display: flex; gap: 8px; }
+        #modal-btns .btn { margin-bottom: 0; }
+    </style>
+</head>
+<body class="font-normal">
+
+<div id="app">
+    <div class="emergency-bar">
+        <span id="txt-emergency-title">🚨 긴급 상황 시 현지 구조기관 우선 신고</span>
+        <a href="tel:119" id="txt-emergency-btn">긴급 119</a>
+    </div>
+
+    <!-- [화면 0] 첫 화면 -->
+    <div id="screen-welcome" class="screen active">
+        <div class="top-controls">
+            <div class="lang-switch">
+                <button class="lang-btn active" onclick="switchLanguage('ko', this)">한국어</button>
+                <button class="lang-btn" onclick="switchLanguage('en', this)">English</button>
+            </div>
+            <div class="font-switch">
+                <button class="font-btn" onclick="setFontSize('small', this)">작게</button>
+                <button class="font-btn active" onclick="setFontSize('normal', this)">보통</button>
+                <button class="font-btn" onclick="setFontSize('large', this)">크게</button>
+            </div>
+        </div>
+
+        <div class="welcome-container">
+            <h2 id="w-title">위기ON</h2>
+            <p id="w-desc">재난·전쟁·감염병 피해자를 위한<br>국제사회 통합 지원 플랫폼</p>
+
+            <button class="btn" onclick="goToVictimFlow()" id="w-victim-btn">피해자: 바로 지원받기</button>
+            <button class="btn btn-secondary" onclick="goToScreen('screen-org-login')" id="w-org-btn">지원기구 로그인</button>
+        </div>
+    </div>
+
+    <!-- [지원기구 로그인 화면] -->
+    <div id="screen-org-login" class="screen">
+        <header>
+            <h1 id="og-header">지원기구 인증 로그인</h1>
+            <button class="lang-btn" id="og-back-btn" onclick="goToScreen('screen-welcome')">뒤로</button>
+        </header>
+
+        <div style="margin-top: 20px;">
+            <p style="font-size: 0.9em; color: #718096; margin-bottom: 15px;" id="og-desc">데모 계정: ocha, who, unicef, wfp, ifrc (비밀번호: 1234)</p>
+
+            <form onsubmit="handleOrgLogin(event)">
+                <label id="og-lbl-id">기관 아이디</label>
+                <input type="text" id="org-id-input" placeholder="예: who" required>
+
+                <label id="og-lbl-pw">비밀번호</label>
+                <input type="password" id="org-pw-input" placeholder="1234" required>
+
+                <div style="margin-bottom: 15px; display: flex; align-items: center;">
+                    <input type="checkbox" id="org-stay-logged" style="width: 18px; height: 18px; margin-right: 8px; margin-bottom:0;">
+                    <label for="org-stay-logged" style="margin-bottom: 0; font-weight: normal;" id="og-lbl-stay">로그인 상태 유지</label>
+                </div>
+
+                <button type="submit" class="btn" id="og-btn-submit">로그인</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- [화면 1] 피해자 메인 화면 -->
+    <div id="screen-victim" class="screen">
+        <header>
+            <h1 id="v-header-title">피해자 지원 안내소</h1>
+            <button class="lang-btn" id="v-home-btn" onclick="confirmLogout()">처음으로</button>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('victim', 'info', this)" id="v-tab-1">대처정보</button>
+            <button class="tab-btn" onclick="switchTab('victim', 'request', this)" id="v-tab-2">도움요청</button>
+            <button class="tab-btn" onclick="switchTab('victim', 'status', this)" id="v-tab-3">내요청확인</button>
+            <button class="tab-btn" onclick="switchTab('victim', 'privacy', this)" id="v-tab-4">개인정보보호</button>
+        </div>
+
+        <div id="v-section-info" class="section-pane active">
+            <label id="v-lbl-crisis-select">위기 상황 선택</label>
+            <select id="crisis-type-select" onchange="updateCrisisInfo()">
+                <option value="disaster">재난 (지진·홍수 등)</option>
+                <option value="war">전쟁·분쟁 지역</option>
+                <option value="disease">감염병 확산 지역</option>
+            </select>
+
+            <div class="card">
+                <h3 id="v-info-title">안전 수칙 및 체크리스트</h3>
+                <p style="font-size: 0.85em; color: #718096; margin-bottom: 10px;" id="v-info-desc">대비 항목을 체크하면 완료율이 올라갑니다.</p>
+                <div class="progress-container">
+                    <div id="checklist-progress" class="progress-bar"></div>
+                </div>
+                <div id="checklist-container"></div>
+            </div>
+
+            <div class="card">
+                <h3 id="v-support-guide-title">의료·생활·안전 지원 안내</h3>
+                <p style="font-size: 0.85em; color: #4a5568;" id="v-support-guide-content">UN OCHA 및 WHO 등 국제기구를 통해 식량 배급소, 임시 응급 의료소, 안전 대피소 위치 정보가 제공됩니다.</p>
+            </div>
+        </div>
+
+        <div id="v-section-request" class="section-pane">
+            <h3 style="margin-bottom: 8px;" id="r-form-title">긴급 지원 요청서</h3>
+            <p style="font-size: 0.8em; color: #718096; margin-bottom: 12px;" id="r-form-desc">최소한의 정보로 빠르게 접수됩니다. (동네 단위까지만 입력)</p>
+
+            <form id="help-request-form" onsubmit="submitHelpRequest(event)">
+                <label id="r-lbl-type">지원 종류 선택</label>
+                <select id="req-support-type" required>
+                    <option value="의료">의료·응급 (Medical)</option>
+                    <option value="식량">식량·식수 (Food & Water)</option>
+                    <option value="의약품">의약품 (Medicine)</option>
+                    <option value="주거">주거·대피소 (Shelter)</option>
+                    <option value="심리상담">심리상담 (Psychological)</option>
+                </select>
+
+                <label id="r-lbl-count">피해 인원</label>
+                <input type="number" id="req-count" min="1" value="1" required>
+
+                <label id="r-lbl-location">동네 단위 지역 (예: 용산동, 북부 지구 등)</label>
+                <input type="text" id="req-location" placeholder="동네 단위 입력" required>
+
+                <label id="r-lbl-contact">연락 방법 (메시지 수신용 번호 또는 임시 코드)</label>
+                <input type="text" id="req-contact" placeholder="연락처 또는 코드" required>
+
+                <div style="margin-bottom: 12px; display: flex; align-items: center;">
+                    <input type="checkbox" id="req-anonymous" onchange="toggleAnonymousContact()" style="width: 18px; height: 18px; margin-right: 8px; margin-bottom:0;">
+                    <label for="req-anonymous" style="margin-bottom: 0; font-weight: normal;" id="r-lbl-anon">익명으로 접수</label>
+                </div>
+
+                <button type="submit" class="btn" id="r-submit-btn">지원 요청 접수하기</button>
+            </form>
+        </div>
+
+        <div id="v-section-status" class="section-pane">
+            <h3 style="margin-bottom: 8px;" id="s-title">내 요청 진행 상태</h3>
+            <p style="font-size: 0.8em; color: #718096; margin-bottom: 12px;" id="s-desc">발급받은 접수번호로 처리 상태를 실시간 확인합니다.</p>
+            <div id="my-requests-list"></div>
+        </div>
+
+        <div id="v-section-privacy" class="section-pane">
+            <div class="card">
+                <h3 id="p-title">개인정보 보호 및 안전 원칙</h3>
+                <p style="font-size: 0.85em; color: #4a5568; line-height: 1.5; margin-bottom: 10px;" id="p-desc1">
+                    위기ON은 피해자의 안전과 프라이버시를 최우선으로 합니다.
+                </p>
+                <ul style="font-size: 0.85em; color: #4a5568; padding-left: 20px; line-height: 1.6;" id="p-list">
+                    <li>정확한 위도/경도 좌표 대신 <strong>동네(지역) 단위</strong>까지만 수집합니다.</li>
+                    <li>모든 연락처 정보는 인증된 국제지원기구 담당자 외부에 절대 공개되지 않습니다.</li>
+                    <li>익명 접수 선택 시 최소한의 식별 코드만 부여됩니다.</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer class="disclaimer" id="footer-text">
+            이 서비스는 실제 구조·의료를 대체하지 않으며 긴급 상황에서는 현지 구조기관과 공식 긴급 신고 체계를 우선 이용하세요.
+        </footer>
+    </div>
+
+    <!-- [화면 2] 지원기구 메인 화면 -->
+    <div id="screen-org" class="screen">
+        <header>
+            <div>
+                <h1 id="org-welcome-title">기관명 (역할)</h1>
+            </div>
+            <button class="lang-btn" id="o-logout-btn" onclick="confirmLogout()">로그아웃</button>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('org', 'status', this)" id="o-tab-1">피해 현황</button>
+            <button class="tab-btn" onclick="switchTab('org', 'requests', this)" id="o-tab-2">지원 요청</button>
+            <button class="tab-btn" onclick="switchTab('org', 'register', this)" id="o-tab-3">지원 등록</button>
+        </div>
+
+        <div id="o-section-status" class="section-pane active">
+            <div class="card">
+                <h3 id="map-header-title">지역별 피해 현황 지도 (가상 6개 지역)</h3>
+                <p style="font-size: 0.8em; color: #718096; margin-bottom: 10px;" id="map-header-desc">색상과 숫자로 피해 규모를 파악합니다. (범례: 🔴 대규모 | 🟠 주의 | 🟡 안정)</p>
+
+                <div class="map-container">
+                    <svg id="damage-map" viewBox="0 0 300 150" width="100%" style="background:#e2e8f0; border-radius:6px;"></svg>
+                    <p id="map-note" style="font-size:0.7em; color:#718096; margin-top:6px;"></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 id="graph-title">지원 분야별 피해 요청 통계</h3>
+                <div style="margin-top: 10px;" id="stats-graph-container"></div>
+            </div>
+        </div>
+
+        <div id="o-section-requests" class="section-pane">
+            <h3 style="margin-bottom: 8px;" id="o-req-title">피해자 지원 요청 목록 (실시간 연동)</h3>
+            <p style="font-size: 0.8em; color: #718096; margin-bottom: 12px;" id="o-req-desc">요청을 확인하고 상태를 변경하면 피해자의 '내 요청'에 즉시 반영됩니다.</p>
+            <label id="o-filter-label">피해 유형 필터</label>
+            <select id="org-filter" onchange="renderOrgRequests()"></select>
+            <div id="org-requests-list"></div>
+        </div>
+
+        <div id="o-section-register" class="section-pane">
+            <h3 style="margin-bottom: 8px;" id="reg-title">우리 기관 지원 현황 등록</h3>
+            <p style="font-size: 0.8em; color: #718096; margin-bottom: 12px;" id="reg-desc">현재 투입 가능한 지원 분야와 가동 상태를 등록합니다.</p>
+
+            <form onsubmit="registerOrgSupport(event)">
+                <label id="reg-lbl-field">지원 분야</label>
+                <select id="reg-field" required>
+                    <option value="의료">의료·응급 (Medical)</option>
+                    <option value="식량">식량·식수 (Food & Water)</option>
+                    <option value="의약품">의약품 (Medicine)</option>
+                    <option value="주거">주거·대피소 (Shelter)</option>
+                    <option value="심리상담">심리상담 (Psychological)</option>
+                </select>
+
+                <label id="reg-lbl-status">상태 배지 선택</label>
+                <select id="reg-status-badge" required>
+                    <option value="운영 중">운영 중 (Active)</option>
+                    <option value="포화">포화 (Saturated)</option>
+                    <option value="확인 필요">확인 필요 (Review Needed)</option>
+                    <option value="폐쇄">폐쇄 (Closed)</option>
+                </select>
+
+                <label id="reg-lbl-loc">담당 지역</label>
+                <input type="text" id="reg-location-input" placeholder="예: 동부 해안가, 수도권 인근" required>
+
+                <button type="submit" class="btn" id="reg-submit-btn">지원 정보 등록 및 게시</button>
+            </form>
+
+            <div style="margin-top: 15px;">
+                <h4 style="font-size: 0.95em; margin-bottom: 8px;" id="reg-list-title">등록된 기관 지원 정보</h4>
+                <div id="org-published-list"></div>
+            </div>
+        </div>
+
+        <footer class="disclaimer" id="footer-text-2">
+            이 서비스는 실제 구조·의료를 대체하지 않으며 긴급 상황에서는 현지 구조기관과 공식 긴급 신고 체계를 우선 이용하세요.
+        </footer>
+    </div>
+</div>
+
+<div id="modal-backdrop"><div id="modal-box"><p id="modal-msg"></p><div id="modal-btns"></div></div></div>
+
+<script>
+    // --- 알림/확인 창: 기본 alert·confirm 대신 화면 안에 팝업을 띄움 ---
+    function closeModal() { document.getElementById('modal-backdrop').classList.remove('show'); }
+    function openModal(msg, buttons) {
+        document.getElementById('modal-msg').innerText = msg;
+        const box = document.getElementById('modal-btns');
+        box.innerHTML = '';
+        buttons.forEach(b => {
+            const el = document.createElement('button');
+            el.className = 'btn' + (b.secondary ? ' btn-secondary' : '');
+            el.innerText = b.label;
+            el.onclick = () => { closeModal(); if (b.action) b.action(); };
+            box.appendChild(el);
+        });
+        document.getElementById('modal-backdrop').classList.add('show');
+    }
+    window.alert = function(msg) { openModal(msg, [{ label: currentLang === 'en' ? 'OK' : '확인' }]); };
+    function askConfirm(msg, onYes) {
+        openModal(msg, [
+            { label: currentLang === 'en' ? 'Cancel' : '취소', secondary: true },
+            { label: currentLang === 'en' ? 'OK' : '확인', action: onYes }
+        ]);
+    }
+
+    // --- 저장소 래퍼: localStorage가 막혀 있어도 메모리로 동작 ---
+    const memStore = {};
+    const store = {
+        get(k) {
+            try { const v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {}
+            return Object.prototype.hasOwnProperty.call(memStore, k) ? memStore[k] : null;
+        },
+        set(k, v) {
+            memStore[k] = v;
+            try { localStorage.setItem(k, v); } catch (e) {}
+        },
+        remove(k) {
+            delete memStore[k];
+            try { localStorage.removeItem(k); } catch (e) {}
+        }
+    };
+    function loadJSON(k, fallback) {
+        try { const raw = store.get(k); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
+    }
+
+    const TEXT = {
+        ko: {
+            emergencyTitle: "🚨 긴급 상황 시 현지 구조기관 우선 신고",
+            emergencyBtn: "긴급 119",
+            wTitle: "위기ON",
+            wDesc: "재난·전쟁·감염병 피해자를 위한<br>국제사회 통합 지원 플랫폼",
+            wVictimBtn: "피해자: 바로 지원받기",
+            wOrgBtn: "지원기구 로그인",
+            ogHeader: "지원기구 인증 로그인",
+            ogDesc: "데모 계정: ocha, who, unicef, wfp, ifrc (비밀번호: 1234)",
+            ogLblId: "기관 아이디",
+            ogLblPw: "비밀번호",
+            ogLblStay: "로그인 상태 유지",
+            ogBtnSubmit: "로그인",
+            vHeaderTitle: "피해자 지원 안내소",
+            vTab1: "대처정보",
+            vTab2: "도움요청",
+            vTab3: "내요청확인",
+            vTab4: "개인정보보호",
+            vLblCrisisSelect: "위기 상황 선택",
+            vInfoTitle: "안전 수칙 및 체크리스트",
+            vInfoDesc: "대비 항목을 체크하면 완료율이 올라갑니다.",
+            vSupportGuideTitle: "의료·생활·안전 지원 안내",
+            vSupportGuideContent: "UN OCHA 및 WHO 등 국제기구를 통해 식량 배급소, 임시 응급 의료소, 안전 대피소 위치 정보가 제공됩니다.",
+            rFormTitle: "긴급 지원 요청서",
+            rFormDesc: "최소한의 정보로 빠르게 접수됩니다. (동네 단위까지만 입력)",
+            rLblType: "지원 종류 선택",
+            rLblCount: "피해 인원",
+            rLblLocation: "동네 단위 지역 (예: 용산동, 북부 지구 등)",
+            rLblContact: "연락 방법 (메시지 수신용 번호 또는 임시 코드)",
+            rLblAnon: "익명으로 접수",
+            rSubmitBtn: "지원 요청 접수하기",
+            sTitle: "내 요청 진행 상태",
+            sDesc: "발급받은 접수번호로 처리 상태를 실시간 확인합니다.",
+            pTitle: "개인정보 보호 및 안전 원칙",
+            pDesc1: "위기ON은 피해자의 안전과 프라이버시를 최우선으로 합니다.",
+            oTab1: "피해 현황",
+            oTab2: "지원 요청",
+            oTab3: "지원 등록",
+            mapHeaderTitle: "지역별 피해 현황 지도 (가상 6개 지역)",
+            mapHeaderDesc: "색상과 숫자로 피해 규모를 파악합니다. (범례: 🔴 대규모 | 🟠 주의 | 🟡 안정)",
+            graphTitle: "지원 분야별 피해 요청 통계",
+            oReqTitle: "피해자 지원 요청 목록 (실시간 연동)",
+            oReqDesc: "요청을 확인하고 상태를 변경하면 피해자의 '내 요청'에 즉시 반영됩니다.",
+            regTitle: "우리 기관 지원 현황 등록",
+            regDesc: "현재 투입 가능한 지원 분야와 가동 상태를 등록합니다.",
+            regLblField: "지원 분야",
+            regLblStatus: "상태 배지 선택",
+            regLblLoc: "담당 지역",
+            regSubmitBtn: "지원 정보 등록 및 게시",
+            regListTitle: "등록된 기관 지원 정보",
+            footerText: "이 서비스는 실제 구조·의료를 대체하지 않으며 긴급 상황에서는 현지 구조기관과 공식 긴급 신고 체계를 우선 이용하세요."
+        },
+        en: {
+            emergencyTitle: "🚨 For emergencies, contact local authorities first",
+            emergencyBtn: "Emergency 119",
+            wTitle: "CrisisON",
+            wDesc: "Integrated international support platform<br>for disaster, conflict, and disease victims",
+            wVictimBtn: "Victim: Get Support Now",
+            wOrgBtn: "Organization Login",
+            ogHeader: "Organization Authentication",
+            ogDesc: "Demo accounts: ocha, who, unicef, wfp, ifrc (Password: 1234)",
+            ogLblId: "Organization ID",
+            ogLblPw: "Password",
+            ogLblStay: "Keep me logged in",
+            ogBtnSubmit: "Login",
+            vHeaderTitle: "Victim Support Center",
+            vTab1: "Guides",
+            vTab2: "Request",
+            vTab3: "My Status",
+            vTab4: "Privacy",
+            vLblCrisisSelect: "Select Crisis Type",
+            vInfoTitle: "Safety Rules & Checklist",
+            vInfoDesc: "Check items to track preparation progress.",
+            vSupportGuideTitle: "Medical & Living Support Info",
+            vSupportGuideContent: "Relief info such as food distribution and shelters are provided via UN OCHA and WHO.",
+            rFormTitle: "Emergency Support Request",
+            rFormDesc: "Submitted quickly with minimal information.",
+            rLblType: "Select Support Type",
+            rLblCount: "Number of People",
+            rLblLocation: "Neighborhood Location",
+            rLblContact: "Contact Method",
+            rLblAnon: "Anonymous Submission",
+            rSubmitBtn: "Submit Support Request",
+            sTitle: "Request Statuses",
+            sDesc: "Check real-time processing status with your receipt number.",
+            pTitle: "Privacy & Safety Principles",
+            pDesc1: "CrisisON prioritizes victim safety and privacy.",
+            oTab1: "Damage Map",
+            oTab2: "Requests",
+            oTab3: "Register Support",
+            mapHeaderTitle: "Regional Damage Map (6 Virtual Zones)",
+            mapHeaderDesc: "Identify damage scale by colors and numbers.",
+            graphTitle: "Damage Requests by Sector",
+            oReqTitle: "Victim Support Requests (Real-time Synced)",
+            oReqDesc: "Updating status here instantly reflects on the victim's 'My Requests'.",
+            regTitle: "Register Organization Support",
+            regDesc: "Register available support sectors and operational status.",
+            regLblField: "Support Sector",
+            regLblStatus: "Status Badge",
+            regLblLoc: "Assigned Region",
+            regSubmitBtn: "Publish Support Info",
+            regListTitle: "Published Organization Supports",
+            footerText: "This service does not replace official rescue services. Prioritize local emergency reporting."
+        }
+    };
+
+    let currentLang = 'ko';
+    let currentOrg = null;
+
+    window.onload = function() {
+        initSampleData();
+        refreshLangDynamic();
+        toggleAnonymousContact();
+        const saved = loadJSON('loggedOrg', null);
+        if (saved) {
+            currentOrg = saved;
+            goToOrgFlow();
+        }
+    };
+
+    function initSampleData() {
+        if (!store.get('crisisRequests')) {
+            const st = ['접수됨', '확인됨', '담당 배정', '전달 중', '완료'];
+            const sampleRequests = [
+                { id: 'REQ-9921', supportType: '의료', count: 3, location: '동부 해안가', contact: '010-1234-5678', isAnonymous: false, status: 2, statusText: st, date: '2026-11-09', trust: '공식', trustClass: 'trust-official', hoursAgo: '2시간 전' },
+                { id: 'REQ-9922', supportType: '식량', count: 10, location: '북부 산악지대', contact: '익명코드 #412', isAnonymous: true, status: 1, statusText: st, date: '2026-11-10', trust: '검증됨', trustClass: 'trust-verified', hoursAgo: '5시간 전' },
+                { id: 'REQ-9923', supportType: '의약품', count: 5, location: '수도권 인근', contact: '010-9876-5432', isAnonymous: false, status: 3, statusText: st, date: '2026-11-10', trust: '확인 필요', trustClass: 'trust-unconfirmed', hoursAgo: '1시간 전' },
+                { id: 'REQ-9924', supportType: '주거', count: 4, location: '남부 삼각주', contact: '익명코드 #882', isAnonymous: true, status: 4, statusText: st, date: '2026-11-08', trust: '공식', trustClass: 'trust-official', hoursAgo: '12시간 전' },
+                { id: 'REQ-9925', supportType: '심리상담', count: 2, location: '서부 계곡', contact: '010-5555-4444', isAnonymous: false, status: 5, statusText: st, date: '2026-11-07', trust: '검증됨', trustClass: 'trust-verified', hoursAgo: '24시간 전' }
+            ];
+            store.set('crisisRequests', JSON.stringify(sampleRequests));
+        }
+
+        if (!store.get('orgSupports')) {
+            const sampleSupports = [
+                { id: 'SUP-1', org: 'WHO', field: '의료', status: '운영 중', location: '동부 해안가', time: '3시간 전' },
+                { id: 'SUP-2', org: 'WFP', field: '식량', status: '포화', location: '북부 산악지대', time: '6시간 전' },
+                { id: 'SUP-3', org: 'UNICEF', field: '의약품', status: '운영 중', location: '수도권 인근', time: '1시간 전' }
+            ];
+            store.set('orgSupports', JSON.stringify(sampleSupports));
+        }
+    }
+
+    // 사용자 입력을 화면에 넣기 전 이스케이프
+    function esc(s) {
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    const LANG_MAP = [
+        ['txt-emergency-title','emergencyTitle'],['txt-emergency-btn','emergencyBtn'],['w-title','wTitle'],
+        ['w-victim-btn','wVictimBtn'],['w-org-btn','wOrgBtn'],['og-header','ogHeader'],['og-desc','ogDesc'],
+        ['og-lbl-id','ogLblId'],['og-lbl-pw','ogLblPw'],['og-lbl-stay','ogLblStay'],['og-btn-submit','ogBtnSubmit'],
+        ['v-header-title','vHeaderTitle'],['v-tab-1','vTab1'],['v-tab-2','vTab2'],['v-tab-3','vTab3'],['v-tab-4','vTab4'],
+        ['v-lbl-crisis-select','vLblCrisisSelect'],['v-info-title','vInfoTitle'],['v-info-desc','vInfoDesc'],
+        ['v-support-guide-title','vSupportGuideTitle'],['v-support-guide-content','vSupportGuideContent'],
+        ['r-form-title','rFormTitle'],['r-form-desc','rFormDesc'],['r-lbl-type','rLblType'],['r-lbl-count','rLblCount'],
+        ['r-lbl-location','rLblLocation'],['r-lbl-contact','rLblContact'],['r-lbl-anon','rLblAnon'],['r-submit-btn','rSubmitBtn'],
+        ['s-title','sTitle'],['s-desc','sDesc'],['p-title','pTitle'],['p-desc1','pDesc1'],
+        ['o-tab-1','oTab1'],['o-tab-2','oTab2'],['o-tab-3','oTab3'],['map-header-title','mapHeaderTitle'],
+        ['map-header-desc','mapHeaderDesc'],['graph-title','graphTitle'],['o-req-title','oReqTitle'],['o-req-desc','oReqDesc'],
+        ['reg-title','regTitle'],['reg-desc','regDesc'],['reg-lbl-field','regLblField'],['reg-lbl-status','regLblStatus'],
+        ['reg-lbl-loc','regLblLoc'],['reg-submit-btn','regSubmitBtn'],['reg-list-title','regListTitle'],
+        ['footer-text','footerText'],['footer-text-2','footerText']
+    ];
+
+    function switchLanguage(lang, btn) {
+        currentLang = lang;
+        document.querySelectorAll('.lang-switch .lang-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        LANG_MAP.forEach(([id, key]) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = TEXT[lang][key];
+        });
+        document.getElementById('w-desc').innerHTML = TEXT[lang].wDesc;
+        document.documentElement.lang = lang;
+        updateCrisisInfo();
+        refreshLangDynamic();
+    }
+
+    function setFontSize(size, btn) {
+        document.body.className = `font-${size}`;
+        document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+    }
+
+    function goToScreen(screenId) {
+        const target = document.getElementById(screenId);
+        if (!target || !target.classList.contains('screen')) {
+            console.warn('화면을 찾을 수 없습니다:', screenId);
+            return;
+        }
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        target.classList.add('active');
+    }
+
+    function goToVictimFlow() {
+        goToScreen('screen-victim');
+        updateCrisisInfo();
+        renderMyRequests();
+    }
+
+    function goToOrgFlow() {
+        goToScreen('screen-org');
+        renderOrgWelcome();
+        renderStatsGraph();
+        renderMap();
+        renderOrgRequests();
+        renderOrgPublishedList();
+    }
+
+    function switchTab(group, paneName, btnElement) {
+        const parent = btnElement.parentElement.parentElement;
+        parent.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        parent.querySelectorAll('.section-pane').forEach(s => s.classList.remove('active'));
+        btnElement.classList.add('active');
+        document.getElementById(`${group === 'victim' ? 'v' : 'o'}-section-${paneName}`).classList.add('active');
+
+        if (group === 'victim' && paneName === 'status') renderMyRequests();
+        if (group === 'org' && paneName === 'requests') renderOrgRequests();
+        if (group === 'org' && paneName === 'status') { renderStatsGraph(); renderMap(); }
+        if (group === 'org' && paneName === 'register') renderOrgPublishedList();
+    }
+
+    function confirmLogout() {
+        askConfirm(t('confirmLogout'), () => {
+            store.remove('loggedOrg');
+            currentOrg = null;
+            goToScreen('screen-welcome');
+        });
+    }
+
+    const ORG_PROFILES = {
+        ocha: { name: "UN OCHA", role: "총괄 조정 및 인도주의 지원" },
+        who: { name: "WHO", role: "보건·의료 지원 및 감염병 대응" },
+        unicef: { name: "UNICEF", role: "아동 복지 및 식수·위생 지원" },
+        wfp: { name: "WFP", role: "긴급 식량 배급 및 물류 지원" },
+        ifrc: { name: "IFRC", role: "적십자 응급 구호 및 심리 상담" }
+    };
+
+    function handleOrgLogin(event) {
+        event.preventDefault();
+        const id = document.getElementById('org-id-input').value.toLowerCase().trim();
+        const pw = document.getElementById('org-pw-input').value.trim();
+        const stayLogged = document.getElementById('org-stay-logged').checked;
+
+        if (ORG_PROFILES[id] && pw === '1234') {
+            currentOrg = { id: id, ...ORG_PROFILES[id] };
+            if (stayLogged) store.set('loggedOrg', JSON.stringify(currentOrg));
+            else store.remove('loggedOrg');
+            goToOrgFlow();
+        } else {
+            alert(t('alertLoginFail'));
+        }
+    }
+
+    const CHECKLISTS = {
+        disaster: [
+            { ko: "지진/홍수 발생 시 낙하물 피하기 (책상 아래 등)", en: "Take cover from falling objects (e.g., under a desk)" },
+            { ko: "가스 및 전기 차단 확인", en: "Check and shut off gas and electricity" },
+            { ko: "비상 용품 가방(식수, 응급약 등) 챙기기", en: "Prepare emergency supply kit (water, medicine)" },
+            { ko: "안전한 고지대 또는 야외 대피소로 이동", en: "Move to safe high ground or open evacuation shelter" }
+        ],
+        war: [
+            { ko: "창문과 떨어진 내실이나 지하실로 대피", en: "Evacuate to an interior room or basement away from windows" },
+            { ko: "식량 및 비상 식수 확보", en: "Secure emergency food and drinking water" },
+            { ko: "공식 방송 및 국제기구 안내 채널 주시", en: "Monitor official broadcasts and international organization channels" },
+            { ko: "개인 신분증 및 비상 연락망 소지", en: "Keep personal ID and emergency contacts with you" }
+        ],
+        disease: [
+            { ko: "마스크 착용 및 개인 위생(손 소독) 철저", en: "Wear masks and maintain strict personal hygiene" },
+            { ko: "의심 증상 발생 시 자가 격리 및 선별소 확인", en: "Self-isolate and check screening clinics if symptoms appear" },
+            { ko: "사람 많은 장소 방문 자제", en: "Avoid visiting crowded public places" },
+            { ko: "공인된 보건 당국 정보만 신뢰하기", en: "Trust information only from certified health authorities" }
+        ]
+    };
+
+    // 위기 유형별 체크 상태를 화면 전환/언어 변경 중에도 유지
+    const checklistState = {};
+    let activeChecklistType = null;
+
+    function updateCrisisInfo() {
+        const type = document.getElementById('crisis-type-select').value;
+        const container = document.getElementById('checklist-container');
+
+        // 현재 화면의 체크 상태를 저장한 뒤 새 유형의 상태를 복원
+        if (activeChecklistType) {
+            checklistState[activeChecklistType] = Array.from(
+                container.querySelectorAll('input[type="checkbox"]')
+            ).map(input => input.checked);
+        }
+
+        activeChecklistType = type;
+        container.innerHTML = '';
+
+        CHECKLISTS[type].forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'checklist-item';
+            div.innerHTML = `
+                <input type="checkbox" id="check-${index}" onchange="updateProgress()">
+                <label for="check-${index}" style="margin-bottom:0; font-size:0.9em; cursor:pointer;">${item[currentLang]}</label>
+            `;
+            const saved = checklistState[type] || [];
+            div.querySelector('input').checked = Boolean(saved[index]);
+            container.appendChild(div);
+        });
+        updateProgress();
+    }
+
+    function updateProgress() {
+        const checkboxes = document.querySelectorAll('#checklist-container input[type="checkbox"]');
+        const checked = document.querySelectorAll('#checklist-container input[type="checkbox"]:checked');
+        const percentage = checkboxes.length ? (checked.length / checkboxes.length) * 100 : 0;
+        if (activeChecklistType) {
+            checklistState[activeChecklistType] = Array.from(checkboxes).map(input => input.checked);
+        }
+        document.getElementById('checklist-progress').style.width = percentage + '%';
+    }
+
+    // ===================================================================
+    // [보완] 추가 번역 문구 (기존 TEXT 객체에 합쳐서 번역 데이터를 한 곳에서 관리)
+    // ===================================================================
+    Object.assign(TEXT.ko, {
+        pLi1: "정확한 위도/경도 좌표 대신 <strong>동네(지역) 단위</strong>까지만 수집합니다.",
+        pLi2: "모든 연락처 정보는 인증된 국제지원기구 담당자 외부에 절대 공개되지 않습니다.",
+        pLi3: "익명 접수 선택 시 최소한의 식별 코드만 부여됩니다.",
+        filterLabel: "피해 유형 필터", filterAll: "전체",
+        back: "뒤로", home: "처음으로", logout: "로그아웃",
+        fontBtns: ["작게", "보통", "크게"],
+        phReqLoc: "동네 단위 입력", phContact: "연락처 또는 코드", phOrgId: "예: who", phRegLoc: "예: 동부 해안가, 수도권 인근",
+        statusText: ["접수됨", "확인됨", "담당 배정", "전달 중", "완료"],
+        progressNames: ["접수", "확인", "배정", "전달", "완료"],
+        receiptNo: "접수번호", supportKind: "지원 종류", locationLbl: "위치", lastCheck: "마지막 확인",
+        victimCountLbl: "피해 인원", contactLbl: "연락처", changeBtn: "상태 변경",
+        people: n => `${n}인`, peopleFull: n => `${n}명`,
+        stepLabel: (n, s) => `${n}단계: ${s}`,
+        noMyReq: "접수된 지원 요청이 없습니다.", noOrgReq: "조건에 맞는 요청이 없습니다.", noSup: "등록된 지원 정보가 없습니다.",
+        detailTitle: "요청 상세 및 지원 연결", candTitle: "연결 가능한 기관 지원", noCand: "같은 분야로 등록된 기관 지원이 없습니다.",
+        regionMatch: "지역 일치", linkBtn: "이 지원 연결", assignedOrg: "담당 기관", dateLbl: "접수일", tapHint: "눌러서 상세 보기 ▾",
+        levels: ["대규모", "주의", "안정"], damageLine: n => `피해 ${n}명`,
+        mapNote: "※ 기본 피해 수치에 접수된 요청 인원(완료 제외)이 자동 합산됩니다.",
+        supSuffix: " 지원", areaLbl: "담당 지역", countFmt: (c, p) => `${c}건 (${p}%)`,
+        alertSubmitted: id => `요청이 성공적으로 접수되었습니다!\n접수번호: ${id}`,
+        alertLinked: (id, org) => `${id}에 ${org}의 지원이 연결되었습니다.\n상태가 [담당 배정]으로 변경되어 피해자 화면에 반영됩니다.`,
+        alertStatus: (id, s) => `접수번호 ${id}의 상태가 [${s}] (으)로 변경되었습니다.\n피해자의 '내 요청'에 실시간 반영됩니다.`,
+        alertRegistered: "우리 기관의 지원 현황이 성공적으로 등록되었습니다!",
+        alertLoginFail: "아이디 또는 비밀번호가 올바르지 않습니다. (데모 아이디: ocha, who, unicef, wfp, ifrc / 비밀번호: 1234)",
+        confirmLogout: "첫 화면(언어/유형 선택)으로 돌아가시겠습니까?"
+    });
+    Object.assign(TEXT.en, {
+        pLi1: "We collect only <strong>neighborhood-level</strong> location, never exact coordinates.",
+        pLi2: "All contact information is never disclosed outside verified international aid staff.",
+        pLi3: "Anonymous submissions receive only a minimal identification code.",
+        filterLabel: "Filter by Damage Type", filterAll: "All",
+        back: "Back", home: "Home", logout: "Logout",
+        fontBtns: ["Small", "Normal", "Large"],
+        phReqLoc: "Enter neighborhood", phContact: "Phone number or code", phOrgId: "e.g. who", phRegLoc: "e.g. Eastern Coast, Capital Area",
+        statusText: ["Received", "Confirmed", "Assigned", "In Transit", "Done"],
+        progressNames: ["Received", "Confirmed", "Assigned", "Sent", "Done"],
+        receiptNo: "Receipt No.", supportKind: "Support Type", locationLbl: "Location", lastCheck: "Last checked",
+        victimCountLbl: "People Affected", contactLbl: "Contact", changeBtn: "Update",
+        people: n => `${n} people`, peopleFull: n => `${n} people`,
+        stepLabel: (n, s) => `Step ${n}: ${s}`,
+        noMyReq: "No support requests submitted.", noOrgReq: "No requests match the filter.", noSup: "No support info registered.",
+        detailTitle: "Request Details & Linking", candTitle: "Available Organization Support", noCand: "No organization support registered for this sector.",
+        regionMatch: "Region match", linkBtn: "Link this support", assignedOrg: "Assigned Org", dateLbl: "Submitted", tapHint: "Tap for details ▾",
+        levels: ["Major", "Caution", "Stable"], damageLine: n => `${n} affected`,
+        mapNote: "* Submitted request counts (excluding completed) are added to the base damage figures automatically.",
+        supSuffix: " Support", areaLbl: "Area", countFmt: (c, p) => `${c} (${p}%)`,
+        alertSubmitted: id => `Your request was submitted!\nReceipt No.: ${id}`,
+        alertLinked: (id, org) => `${org} support was linked to ${id}.\nStatus is now [Assigned] and shown to the victim.`,
+        alertStatus: (id, s) => `Status of ${id} changed to [${s}].\nIt is reflected in the victim's 'My Requests'.`,
+        alertRegistered: "Your organization's support has been registered!",
+        alertLoginFail: "Incorrect ID or password. (Demo IDs: ocha, who, unicef, wfp, ifrc / Password: 1234)",
+        confirmLogout: "Return to the first screen?"
+    });
+    function t(key) { return TEXT[currentLang][key]; }
+
+    // 값(한국어)은 그대로 저장하고, 화면에 보이는 글자만 언어별로 바꾸는 사전
+    const OPT = {
+        support: {
+            '의료': { ko: '의료·응급 (Medical)', en: 'Medical / Emergency' },
+            '식량': { ko: '식량·식수 (Food & Water)', en: 'Food & Water' },
+            '의약품': { ko: '의약품 (Medicine)', en: 'Medicine' },
+            '주거': { ko: '주거·대피소 (Shelter)', en: 'Shelter' },
+            '심리상담': { ko: '심리상담 (Psychological)', en: 'Psychological Support' }
+        },
+        badge: {
+            '운영 중': { ko: '운영 중 (Active)', en: 'Active' },
+            '포화': { ko: '포화 (Saturated)', en: 'Saturated' },
+            '확인 필요': { ko: '확인 필요 (Review Needed)', en: 'Review Needed' },
+            '폐쇄': { ko: '폐쇄 (Closed)', en: 'Closed' }
+        },
+        crisis: {
+            disaster: { ko: '재난 (지진·홍수 등)', en: 'Disaster (earthquake, flood, etc.)' },
+            war: { ko: '전쟁·분쟁 지역', en: 'War / Conflict Zone' },
+            disease: { ko: '감염병 확산 지역', en: 'Epidemic Area' }
+        }
+    };
+    const SHORT = { '의료': ['의료', 'Medical'], '식량': ['식량', 'Food'], '의약품': ['의약품', 'Medicine'], '주거': ['주거', 'Shelter'], '심리상담': ['심리상담', 'Counseling'] };
+    const TRUST_EN = { '공식': 'Official', '검증됨': 'Verified', '확인 필요': 'Needs check' };
+    const ROLE_EN = {
+        ocha: 'Overall coordination & humanitarian aid', who: 'Health care & infectious disease response',
+        unicef: 'Child welfare, water & sanitation', wfp: 'Emergency food & logistics', ifrc: 'Red Cross relief & counseling'
+    };
+
+    function sl(v) { return SHORT[v] ? SHORT[v][currentLang === 'ko' ? 0 : 1] : v; }
+    function tr(v) { return currentLang === 'en' && TRUST_EN[v] ? TRUST_EN[v] : v; }
+    function anon(s) { return currentLang === 'en' ? String(s).replace('익명코드', 'Anon code') : s; }
+    function ago(s) {
+        if (currentLang !== 'en') return s;
+        if (s === '방금 전') return 'just now';
+        const m = String(s).match(/(\d+)시간 전/);
+        return m ? `${m[1]}h ago` : s;
+    }
+
+    // ===================================================================
+    // [보완] 가상 6개 지역 데이터 + SVG 지도 (요청 인원이 자동 합산되어 색상이 바뀜)
+    // ===================================================================
+    const ZONES = [
+        { ko: '북부 산악지대', en: 'Northern Highlands', base: 4200, x: 10, y: 10, w: 85 },
+        { ko: '중앙 평원', en: 'Central Plains', base: 1800, x: 100, y: 10, w: 95 },
+        { ko: '동부 해안가', en: 'Eastern Coast', base: 5100, x: 200, y: 10, w: 90 },
+        { ko: '서부 계곡', en: 'Western Valley', base: 450, x: 10, y: 80, w: 85 },
+        { ko: '남부 삼각주', en: 'Southern Delta', base: 2300, x: 100, y: 80, w: 95 },
+        { ko: '수도권 인근', en: 'Capital Area', base: 6800, x: 200, y: 80, w: 90 }
+    ];
+    function rg(s) {
+        const z = ZONES.find(z => z.ko === s);
+        return currentLang === 'en' && z ? z.en : s;
+    }
+    // 피해 인원에 따른 단계: 3000명 이상 대규모(빨강), 1000명 이상 주의(주황), 그 미만 안정(노랑)
+    const LEVEL_STYLE = [
+        { fill: '#feb2b2', stroke: '#e53e3e', text: '#9b2c2c' },
+        { fill: '#fbd38d', stroke: '#dd6b20', text: '#c05621' },
+        { fill: '#faf089', stroke: '#d69e2e', text: '#b7791f' }
+    ];
+    function renderMap() {
+        const svg = document.getElementById('damage-map');
+        if (!svg) return;
+        const requests = loadJSON('crisisRequests', []);
+        let html = '';
+        ZONES.forEach(z => {
+            // 위치 글자가 지역 이름과 일치하는 미완료 요청의 인원을 합산
+            const extra = requests
+                .filter(r => r.status < 5 && r.location && r.location.trim().length >= 2 && z.ko.includes(r.location.trim()))
+                .reduce((sum, r) => sum + (parseInt(r.count) || 0), 0);
+            const total = z.base + extra;
+            const lv = total >= 3000 ? 0 : (total >= 1000 ? 1 : 2);
+            const s = LEVEL_STYLE[lv];
+            const cx = z.x + z.w / 2;
+            const nameSize = currentLang === 'en' ? 9 : 11;
+            html += `<rect x="${z.x}" y="${z.y}" width="${z.w}" height="60" rx="6" fill="${s.fill}" stroke="${s.stroke}" stroke-width="2"/>`;
+            html += `<text x="${cx}" y="${z.y + 24}" font-size="${nameSize}" font-weight="bold" text-anchor="middle" fill="${s.text}">${z[currentLang]}</text>`;
+            html += `<text x="${cx}" y="${z.y + 38}" font-size="9" text-anchor="middle" fill="${s.text}">${t('damageLine')(total.toLocaleString())}</text>`;
+            html += `<text x="${cx}" y="${z.y + 50}" font-size="9" font-weight="bold" text-anchor="middle" fill="${s.text}">(${t('levels')[lv]})</text>`;
+        });
+        svg.innerHTML = html;
+        document.getElementById('map-note').innerText = t('mapNote');
+    }
+
+    // ===================================================================
+    // [보완] 언어를 바꿀 때 동적으로 만들어지는 부분(옵션·목록·지도)도 함께 갱신
+    // ===================================================================
+    function setOptions(selId, map) {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
+        Array.from(sel.options).forEach(o => { if (map[o.value]) o.text = map[o.value][currentLang]; });
+    }
+    function refreshLangDynamic() {
+        const L = TEXT[currentLang];
+        document.querySelectorAll('#p-list li').forEach((li, i) => { li.innerHTML = L['pLi' + (i + 1)]; });
+        document.getElementById('o-filter-label').innerText = L.filterLabel;
+        document.getElementById('og-back-btn').innerText = L.back;
+        document.getElementById('v-home-btn').innerText = L.home;
+        document.getElementById('o-logout-btn').innerText = L.logout;
+        document.querySelectorAll('.font-btn').forEach((b, i) => { b.innerText = L.fontBtns[i]; });
+        document.getElementById('req-location').placeholder = L.phReqLoc;
+        document.getElementById('req-contact').placeholder = L.phContact;
+        document.getElementById('org-id-input').placeholder = L.phOrgId;
+        document.getElementById('reg-location-input').placeholder = L.phRegLoc;
+
+        setOptions('req-support-type', OPT.support);
+        setOptions('reg-field', OPT.support);
+        setOptions('reg-status-badge', OPT.badge);
+        setOptions('crisis-type-select', OPT.crisis);
+
+        // 피해 유형 필터 목록은 다시 만들되 선택값은 유지
+        const f = document.getElementById('org-filter');
+        const cur = f.value;
+        f.innerHTML = `<option value="">${L.filterAll}</option>` +
+            Object.keys(OPT.support).map(v => `<option value="${v}">${OPT.support[v][currentLang]}</option>`).join('');
+        f.value = cur;
+
+        renderOrgWelcome();
+        renderMyRequests();
+        renderStatsGraph();
+        renderOrgRequests();
+        renderOrgPublishedList();
+        renderMap();
+    }
+    function renderOrgWelcome() {
+        if (currentOrg) {
+            const role = currentLang === 'en' ? ROLE_EN[currentOrg.id] : currentOrg.role;
+            document.getElementById('org-welcome-title').innerText = `${currentOrg.name} (${role})`;
+        }
+    }
+
+    // 익명 접수에서는 연락처 입력을 요구하지 않음
+    function toggleAnonymousContact() {
+        const anonymous = document.getElementById('req-anonymous').checked;
+        const contactInput = document.getElementById('req-contact');
+        contactInput.required = !anonymous;
+        contactInput.disabled = anonymous;
+        if (anonymous) contactInput.value = '';
+    }
+
+    // ===================================================================
+    // 도움 요청 제출
+    // ===================================================================
+    function makeUniqueId(prefix, records, min, max) {
+        const used = new Set(records.map(item => item.id));
+        for (let attempt = 0; attempt < 100; attempt++) {
+            const candidate = prefix + Math.floor(min + Math.random() * (max - min + 1));
+            if (!used.has(candidate)) return candidate;
+        }
+        return `${prefix}${Date.now()}`;
+    }
+
+    function submitHelpRequest(event) {
+        event.preventDefault();
+
+        const supportType = document.getElementById('req-support-type').value;
+        const count = document.getElementById('req-count').value;
+        const location = document.getElementById('req-location').value;
+        const contact = document.getElementById('req-contact').value;
+        const isAnonymous = document.getElementById('req-anonymous').checked;
+
+        const newRequest = {
+            id: makeUniqueId('REQ-', loadJSON('crisisRequests', []), 1000, 9999),
+            supportType: supportType,
+            count: count,
+            location: location,
+            contact: isAnonymous ? '익명코드 #' + Math.floor(100 + Math.random() * 900) : contact,
+            isAnonymous: isAnonymous,
+            status: 1, // 1: 접수, 2: 확인, 3: 담당 배정, 4: 전달 중, 5: 완료
+            date: new Date().toLocaleDateString(),
+            trust: '확인 필요',
+            trustClass: 'trust-unconfirmed',
+            hoursAgo: '방금 전'
+        };
+
+        const requests = loadJSON('crisisRequests', []);
+        requests.unshift(newRequest);
+        store.set('crisisRequests', JSON.stringify(requests));
+
+        alert(t('alertSubmitted')(newRequest.id));
+        document.getElementById('help-request-form').reset();
+        toggleAnonymousContact();
+        switchTab('victim', 'status', document.getElementById('v-tab-3'));
+    }
+
+    // ===================================================================
+    // 피해자: 내 요청 확인 (진행 단계 바 + 담당 기관 표시)
+    // ===================================================================
+    function renderMyRequests() {
+        const L = TEXT[currentLang];
+        const container = document.getElementById('my-requests-list');
+        const requests = loadJSON('crisisRequests', []);
+
+        if (requests.length === 0) {
+            container.innerHTML = `<p style="text-align:center; color:#718096; font-size:0.9em; margin-top:20px;">${L.noMyReq}</p>`;
+            return;
+        }
+
+        container.innerHTML = '';
+        requests.forEach(req => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const progressPercent = (req.status / 5) * 100;
+
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>${L.receiptNo}: ${esc(req.id)}</strong>
+                    <div>
+                        <span class="status-badge status-${req.status}">[${L.statusText[req.status - 1]}]</span>
+                        <span class="trust-badge ${req.trustClass}">${esc(tr(req.trust))}</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9em; margin:6px 0;"><strong>${L.supportKind}:</strong> ${esc(sl(req.supportType))} (${L.people(esc(req.count))})</p>
+                <p style="font-size:0.85em; color:#4a5568; margin-bottom:6px;"><strong>${L.locationLbl}:</strong> ${esc(rg(req.location))} | <span style="color:#718096;">${L.lastCheck} ${esc(ago(req.hoursAgo))}</span></p>
+                ${req.assignedOrg ? `<p style="font-size:0.85em; color:#276749; margin-bottom:6px;"><strong>${L.assignedOrg}:</strong> ${esc(req.assignedOrg)}</p>` : ''}
+                <div class="progress-container" style="margin: 8px 0 4px 0;">
+                    <div class="progress-bar" style="width: ${progressPercent}%;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7em; color:#718096;">
+                    ${L.progressNames.map(n => `<span>${n}</span>`).join('')}
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // ===================================================================
+    // 지원기구: 분야별 요청 통계 막대그래프
+    // ===================================================================
+    function renderStatsGraph() {
+        const L = TEXT[currentLang];
+        const container = document.getElementById('stats-graph-container');
+        const requests = loadJSON('crisisRequests', []);
+
+        const counts = { '의료': 0, '식량': 0, '의약품': 0, '주거': 0, '심리상담': 0 };
+        requests.forEach(r => {
+            if (counts[r.supportType] !== undefined) counts[r.supportType]++;
+            else counts['의료']++;
+        });
+
+        const total = requests.length || 1;
+        container.innerHTML = '';
+
+        for (const [field, count] of Object.entries(counts)) {
+            const percent = Math.round((count / total) * 100);
+            const wrapper = document.createElement('div');
+            wrapper.className = 'graph-bar-wrapper';
+            wrapper.innerHTML = `
+                <div style="display:flex; justify-content:space-between; font-size:0.85em; margin-bottom:3px;">
+                    <span><strong>${sl(field)}${L.supSuffix}</strong></span>
+                    <span style="color:#4a5568;">${L.countFmt(count, percent)}</span>
+                </div>
+                <div class="graph-bar-container">
+                    <div class="graph-bar-fill" style="width: ${Math.max(percent, 5)}%;"></div>
+                </div>
+            `;
+            container.appendChild(wrapper);
+        }
+    }
+
+    // ===================================================================
+    // 지원기구: 요청 목록 + 피해 유형 필터 + 상세 보기 + 지원 연결
+    // ===================================================================
+    let openReqId = null; // 상세 보기가 펼쳐진 요청 번호
+
+    function toggleDetail(id) {
+        openReqId = (openReqId === id) ? null : id;
+        renderOrgRequests();
+    }
+
+    // 같은 분야로 등록된(폐쇄 아닌) 기관 지원을 찾고, 지역이 같은 것을 먼저 보여줌
+    function findCandidates(req) {
+        const supports = loadJSON('orgSupports', []);
+        return supports
+            .filter(s => s.field === req.supportType && s.status !== '폐쇄')
+            .map(s => ({ ...s, match: s.location === req.location }))
+            .sort((a, b) => Number(b.match) - Number(a.match));
+    }
+
+    function renderOrgRequests() {
+        const L = TEXT[currentLang];
+        const container = document.getElementById('org-requests-list');
+        const requests = loadJSON('crisisRequests', []);
+        const filter = document.getElementById('org-filter').value;
+
+        container.innerHTML = '';
+        let shown = 0;
+
+        requests.forEach((req, index) => { // index는 전체 목록 기준 번호(상태 변경에 사용)
+            if (filter && req.supportType !== filter) return;
+            shown++;
+
+            const isOpen = (openReqId === req.id);
+            let detailHtml = '';
+            if (isOpen) {
+                const cands = findCandidates(req);
+                detailHtml = `
+                    <div class="detail-box">
+                        <strong>${L.detailTitle}</strong>
+                        <p style="margin:4px 0;">${L.dateLbl}: ${esc(req.date)}</p>
+                        <p style="margin:4px 0 8px;">${req.assignedOrg ? `${L.assignedOrg}: <strong>${esc(req.assignedOrg)}</strong>` : ''}</p>
+                        <strong>${L.candTitle}</strong>
+                        ${cands.length === 0 ? `<p style="margin-top:4px; color:#718096;">${L.noCand}</p>` : cands.map(s => `
+                            <div class="cand-row">
+                                <div>
+                                    <strong>${esc(s.org)}</strong>
+                                    <span class="status-badge status-4">${esc(supStatus(s.status))}</span>
+                                    ${s.match ? `<span class="trust-badge trust-official">${L.regionMatch}</span>` : ''}
+                                    <div style="color:#718096;">${esc(rg(s.location))}</div>
+                                </div>
+                                <button class="btn" style="width:auto; margin:0; padding:6px 10px; font-size:0.85em;" onclick="linkSupport('${req.id}','${s.id}')">${L.linkBtn}</button>
+                            </div>`).join('')}
+                    </div>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div style="cursor:pointer;" onclick="toggleDetail('${req.id}')">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <strong>${esc(req.id)} (${esc(sl(req.supportType))})</strong>
+                        <div>
+                            <span class="status-badge status-${req.status}">[${L.statusText[req.status - 1]}]</span>
+                            <span class="trust-badge ${req.trustClass}">${esc(tr(req.trust))}</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.85em; color:#4a5568; margin-bottom:4px;"><strong>${L.victimCountLbl}:</strong> ${L.peopleFull(esc(req.count))} | <strong>${L.locationLbl}:</strong> ${esc(rg(req.location))}</p>
+                    <p style="font-size:0.85em; color:#4a5568; margin-bottom:4px;"><strong>${L.contactLbl}:</strong> ${esc(anon(req.contact))} (${L.lastCheck} ${esc(ago(req.hoursAgo))})</p>
+                    <p style="font-size:0.75em; color:#2b6cb0;">${L.tapHint}</p>
+                </div>
+                ${detailHtml}
+                <div style="display:flex; gap:6px; align-items:center; margin-top:8px;">
+                    <select id="status-sel-${index}" style="margin-bottom:0; font-size:0.85em; padding:6px;">
+                        ${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${req.status === n ? 'selected' : ''}>${L.stepLabel(n, L.statusText[n - 1])}</option>`).join('')}
+                    </select>
+                    <button class="btn" style="width:auto; margin-bottom:0; padding:6px 12px; font-size:0.85em;" onclick="updateRequestStatus(${index})">${L.changeBtn}</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        if (shown === 0) {
+            container.innerHTML = `<p style="text-align:center; color:#718096; font-size:0.9em; margin-top:20px;">${L.noOrgReq}</p>`;
+        }
+    }
+
+    // 지원 연결: 선택한 기관을 담당 기관으로 지정하고 상태를 '담당 배정'(3단계)으로 올림
+    function linkSupport(reqId, supId) {
+        const requests = loadJSON('crisisRequests', []);
+        const supports = loadJSON('orgSupports', []);
+        const req = requests.find(r => r.id === reqId);
+        const sup = supports.find(s => s.id === supId);
+        if (!req || !sup) return;
+
+        req.assignedOrg = sup.org;
+        if (req.status < 3) req.status = 3;
+        req.trust = '검증됨';
+        req.trustClass = 'trust-verified';
+        req.hoursAgo = '방금 전';
+
+        store.set('crisisRequests', JSON.stringify(requests));
+        alert(t('alertLinked')(req.id, sup.org));
+        renderOrgRequests();
+        renderStatsGraph();
+        renderMap();
+    }
+
+    // 기관이 상태를 바꾸면 localStorage에 저장 → 피해자 '내 요청'에서 같은 데이터를 읽어 반영
+    function updateRequestStatus(index) {
+        const requests = loadJSON('crisisRequests', []);
+        const select = document.getElementById(`status-sel-${index}`);
+        const newStatus = select ? parseInt(select.value, 10) : NaN;
+
+        if (!requests[index] || !Number.isInteger(newStatus) || newStatus < 1 || newStatus > 5) {
+            alert(currentLang === 'en' ? 'The request status could not be updated. Please refresh the list.' : '요청 상태를 변경하지 못했습니다. 목록을 새로고침한 뒤 다시 시도해 주세요.');
+            return;
+        }
+
+        requests[index].status = newStatus;
+        if (newStatus >= 2) {
+            requests[index].trust = '검증됨';
+            requests[index].trustClass = 'trust-verified';
+        }
+        requests[index].hoursAgo = '방금 전';
+
+        store.set('crisisRequests', JSON.stringify(requests));
+        alert(t('alertStatus')(requests[index].id, t('statusText')[newStatus - 1]));
+        renderOrgRequests();
+        renderMap();
+    }
+
+    // ===================================================================
+    // 지원기구: 지원 현황 등록 / 등록 목록
+    // ===================================================================
+    function registerOrgSupport(event) {
+        event.preventDefault();
+        const field = document.getElementById('reg-field').value;
+        const status = document.getElementById('reg-status-badge').value;
+        const location = document.getElementById('reg-location-input').value;
+
+        const newSupport = {
+            id: makeUniqueId('SUP-', loadJSON('orgSupports', []), 100, 999),
+            org: currentOrg ? currentOrg.name : 'UN OCHA',
+            field: field,
+            status: status,
+            location: location,
+            time: '방금 전'
+        };
+
+        const supports = loadJSON('orgSupports', []);
+        supports.unshift(newSupport);
+        store.set('orgSupports', JSON.stringify(supports));
+
+        alert(t('alertRegistered'));
+        document.getElementById('reg-location-input').value = '';
+        renderOrgPublishedList();
+    }
+
+    function supStatus(s) { return OPT.badge[s] ? OPT.badge[s][currentLang].split(' (')[0] : s; }
+
+    function renderOrgPublishedList() {
+        const L = TEXT[currentLang];
+        const container = document.getElementById('org-published-list');
+        const supports = loadJSON('orgSupports', []);
+
+        if (supports.length === 0) {
+            container.innerHTML = `<p style="font-size:0.85em; color:#718096;">${L.noSup}</p>`;
+            return;
+        }
+
+        container.innerHTML = '';
+        supports.forEach(sup => {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            let badgeClass = 'status-1';
+            if (sup.status === '운영 중') badgeClass = 'status-4';
+            else if (sup.status === '포화') badgeClass = 'status-1';
+            else if (sup.status === '폐쇄') badgeClass = 'status-5';
+            else if (sup.status === '확인 필요') badgeClass = 'status-2';
+
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>[${esc(sup.org)}] ${esc(sl(sup.field))}${L.supSuffix}</strong>
+                    <span class="status-badge ${badgeClass}">${esc(supStatus(sup.status))}</span>
+                </div>
+                <p style="font-size:0.85em; color:#4a5568; margin-top:4px;">${L.areaLbl}: ${esc(rg(sup.location))} (${esc(ago(sup.time))})</p>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+</script>
+
+</body>
+</html>
